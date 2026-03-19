@@ -1,52 +1,68 @@
-# Practical Coding Test: Laravel CRUD System
+# Practical Coding Test: Secure PHP Laravel CRUD System
 
-A secure, modern minimalist PHP Laravel application featuring user authentication, profile management (CRUD), password reset via email, and Role-Based Access Control (RBAC).
+## Objective
+A secure PHP-based Login and Registration System featuring a user dashboard with full CRUD (Create, Read, Update, Delete) functionality. This implementation adheres to modern best practices in security, scalability, and UX design.
 
-## Features
-- **Authentication**: Secure Login/Register with session management.
-- **CRUD Dashboard**: Create, Read, Update, and Delete user profiles.
-- **Security**: PDO/Prepared Statements, CSRF tokens, XSS protection, and secure password hashing.
-- **Bonus**: Password Reset via real Gmail SMTP and Role-Based Access Control (Admin Mode).
-- **Design**: Modern minimalist dark mode using Tailwind CSS.
+## Technical Stack
+- **Framework**: PHP 8.2+ / Laravel 11
+- **Styling**: Tailwind CSS (Modern Minimalist Dark Mode)
+- **Database**: MySQL (PDO-based)
 
-## Local Setup
-1. Clone the repository.
+## Requirement Checklist & Implementation Overview
+
+### 1. User Authentication
+- [x] **Registration & Login**: Implemented using secure session-based authentication in `AuthController`.
+- [x] **Restricted Access**: All dashboard and CRUD routes are protected by the `auth` middleware.
+
+### 2. Database Interaction
+- [x] **PDO Integration**: Utilizes Laravel's database layer which runs on **PDO** (PHP Data Objects).
+- [x] **SQL Injection Prevention**: All data interactions use **Prepared Statements** and parameter binding.
+
+### 3. CRUD Operations
+- [x] **Create**: Users can create new profile records via a dedicated entry form.
+- [x] **Read**: A responsive, sortable table displays user-entered data on the dashboard.
+- [x] **Update**: Full editing capability for existing records with real-time validation.
+- [x] **Delete**: Secure deletion with a **Modern Modal** and **Master Password Verification** to prevent accidental loss.
+
+### 4. Security Measures
+- [x] **XSS Protection**: All output is automatically escaped using Blade's `{{ ... }}` syntax.
+- [x] **Password Hashing**: Strictly implemented using manual `password_hash()` (Bcrypt) and `password_verify()` as requested.
+- [x] **Session Management**: Configured with secure cookie handling (`http_only: true`, `same_site: lax`) and an idle timeout.
+
+### 5. Form Handling
+- [x] **POST for Sensitive Data**: All authentication and data-mutating requests use POST.
+- [x] **Validation**: Multi-layered validation (HTML5 Client-side + Laravel Server-side) ensures data integrity.
+
+### 6. Error Handling
+- [x] **User-Friendly Feedback**: Consistent error messaging for invalid logins, duplicate registrations, and validation failures.
+- [x] **Graceful Failure**: Server-side errors are caught and logged without exposing sensitive environment details.
+
+### 7. Optional Enhancements (Bonus Points)
+- [x] **CSRF Protection**: Native Laravel token-based protection on all forms.
+- [x] **Password Reset via Email**: Fully functional integration using **Gmail SMTP** and customized mailers.
+- [x] **Role-Based Access Control (RBAC)**: Administrator role with global record management and an "Admin Mode" dashboard view.
+
+---
+
+## Setup Instructions
+
+### 1. Local Development
+1. Clone this repository.
 2. Run `composer install` and `npm install`.
-3. Copy `.env.example` to `.env` and configure your database and mail credentials.
+3. Copy `.env.example` to `.env` and configure your:
+   - `DB_*` (Database credentials)
+   - `MAIL_*` (Gmail SMTP settings for password resets)
 4. Run `php artisan key:generate`.
 5. Run `php artisan migrate`.
-6. Run `npm run dev` and `php artisan serve`.
+6. Launch the system: `php artisan serve` and `npm run dev`.
 
-## Hostinger Deployment (Manual)
-To deploy this application manually on Hostinger:
+### 2. Hosting (Manual Import)
+1. Use the provided `database_structure.sql` to import the schema via phpMyAdmin.
+2. Ensure your domain points to the `/public` directory or follow standard Hostinger Laravel deployment steps.
 
-### 1. Database Setup
-- Create a new MySQL database in your Hostinger Control Panel.
-- Use **phpMyAdmin** to import the `database_structure.sql` file provided in the root directory.
+---
 
-### 2. Files Upload
-- Zip your project files (excluding `node_modules` and `vendor`).
-- Upload the zip to your `public_html` directory via File Manager.
-- Extract the files.
-- Move the contents of the `public/` folder into your web root (usually `public_html`).
-- Update `index.php` in the web root to point to the new paths for `autoload.php` and `app.php`.
-
-### 3. Environment Configuration
-- Edit the `.env` file on the server.
-- Set `APP_ENV=production` and `APP_DEBUG=false`.
-- Update `DB_HOST`, `DB_DATABASE`, `DB_USERNAME`, and `DB_PASSWORD` with your Hostinger database details.
-- Update `MAIL_*` settings for the password reset feature.
-
-### 4. Permissions
-- Ensure the `storage` and `bootstrap/cache` directories are writable by the web server (chmod 775 or 755).
-
-## GitHub Upload
-To upload this to your own GitHub:
-1. Create a new repository on GitHub.
-2. Copy the remote URL.
-3. In your terminal, run:
-   ```bash
-   git remote add origin YOUR_REMOTE_URL
-   git branch -M main
-   git push -u origin main
-   ```
+## Deliverables Included
+- **Source Code**: Fully commented PHP source code.
+- **Database Schema**: `database_structure.sql` in the root directory.
+- **Documentation**: This GitHub-ready README.
