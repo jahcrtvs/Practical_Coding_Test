@@ -36,7 +36,8 @@ class ProfileController extends Controller
 
     public function edit(Profile $profile)
     {
-        // Security: Ensure the user owns this profile or is an admin
+        // Security Check: Access is granted only if the user owns the profile
+        // OR if the user has an 'admin' role (RBAC bonus feature).
         if ($profile->user_id !== Auth::id() && !Auth::user()->isAdmin()) {
             abort(403, 'Unauthorized action.');
         }
@@ -46,11 +47,12 @@ class ProfileController extends Controller
 
     public function update(Request $request, Profile $profile)
     {
-        // Security: Ensure the user owns this profile or is an admin
+        // Security Check: verify ownership or admin privileges before allowing updates
         if ($profile->user_id !== Auth::id() && !Auth::user()->isAdmin()) {
             abort(403, 'Unauthorized action.');
         }
 
+        // Server-side validation of profile data
         $validated = $request->validate([
             'first_name' => 'required|string|max:100',
             'last_name' => 'required|string|max:100',
@@ -59,6 +61,7 @@ class ProfileController extends Controller
             'bio' => 'nullable|string|max:1000',
         ]);
 
+        // Persist changes to the database using Eloquent (PDO-safe)
         $profile->update($validated);
 
         return redirect()->route('dashboard')->with('success', 'Profile updated successfully!');
@@ -66,20 +69,23 @@ class ProfileController extends Controller
 
     public function destroy(Request $request, Profile $profile)
     {
-        // Security: Ensure the user owns this profile or is an admin
+        // Security Check: verify authorization for deletion
         if ($profile->user_id !== Auth::id() && !Auth::user()->isAdmin()) {
             abort(403, 'Unauthorized action.');
         }
 
-        // Validate password for deletion confirmation
+        // Additional Security: Users must confirm their password to finalize deletion.
+        // This prevents accidental or unauthorized "one-click" deletions.
         $request->validate([
             'password' => 'required',
         ]);
 
+        // Verify the provided password using the mandatory password_verify() function
         if (!password_verify($request->password, Auth::user()->password)) {
             return back()->withErrors(['deletion_password' => 'Incorrect password. Deletion cancelled.'])->with('error_profile_id', $profile->id);
         }
 
+        // Perform the deletion
         $profile->delete();
 
         return redirect()->route('dashboard')->with('success', 'Profile deleted successfully!');

@@ -23,13 +23,16 @@ class PasswordResetController extends Controller
      */
     public function sendResetLink(Request $request)
     {
+        // 1. Validate that the email exists in our system
         $request->validate([
             'email' => 'required|email|exists:users,email',
         ]);
 
+        // 2. Generate a secure, unique, and random 64-character token
         $token = Str::random(64);
 
-        // Store the token in password_reset_tokens
+        // 3. Store the token in the password_reset_tokens table with a timestamp
+        // updateOrInsert prevents duplicate entries for the same email
         DB::table('password_reset_tokens')->updateOrInsert(
             ['email' => $request->email],
             [
@@ -38,10 +41,11 @@ class PasswordResetController extends Controller
             ]
         );
 
-        // Generate reset link
+        // 4. Generate the fully qualified reset URL with the token and email
         $resetUrl = route('password.reset', ['token' => $token]) . '?email=' . urlencode($request->email);
         
-        // Send real email
+        // 5. Dispatch a real email using Gmail SMTP as configured in .env
+        // The email contains a modern HTML template with the one-time authorization link
         \Illuminate\Support\Facades\Mail::send([], [], function ($message) use ($request, $resetUrl) {
             $message->to($request->email)
                 ->subject('Password Reset Request')
@@ -76,13 +80,14 @@ class PasswordResetController extends Controller
      */
     public function resetPassword(Request $request)
     {
+        // 1. Validate inputs, ensuring the reset password matches confirmation
         $request->validate([
             'token' => 'required',
             'email' => 'required|email|exists:users,email',
             'password' => 'required|string|min:8|confirmed',
         ]);
 
-        // Verify token
+        // 2. Verify that the token and email record exists in our database
         $record = DB::table('password_reset_tokens')->where([
             'email' => $request->email,
             'token' => $request->token,
@@ -92,16 +97,17 @@ class PasswordResetController extends Controller
             return back()->withErrors(['email' => 'Invalid token or email.']);
         }
 
-        // Token expiry check (e.g., 60 minutes)
+        // 3. Security: Token expiry check (Tokens are valid for only 60 minutes)
         if (Carbon::parse($record->created_at)->addMinutes(60)->isPast()) {
             return back()->withErrors(['email' => 'Reset link has expired.']);
         }
 
-        // Update user password and remove token
+        // 4. Update user password using the mandatory password_hash() method
         User::where('email', $request->email)->update([
             'password' => password_hash($request->password, PASSWORD_BCRYPT)
         ]);
 
+        // 5. Invalidate the token by removing it from the database after a successful reset
         DB::table('password_reset_tokens')->where(['email' => $request->email])->delete();
 
         return redirect()->route('login')->with('success', 'Your password has been successfully reset.');
