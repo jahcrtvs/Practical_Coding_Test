@@ -5,7 +5,7 @@ A secure PHP-based Login and Registration System featuring a user dashboard with
 
 ## Technical Stack
 - **Framework**: PHP 8.2+ / Laravel 11
-- **Styling**: Tailwind CSS (Modern Minimalist Dark Mode)
+- **Styling**: Tailwind CSS
 - **Database**: MySQL (PDO-based)
 
 ## Requirement Checklist & Implementation Overview
@@ -55,11 +55,6 @@ A secure PHP-based Login and Registration System featuring a user dashboard with
 4. Run `php artisan key:generate`.
 5. Run `php artisan migrate`.
 6. Launch the system: `php artisan serve` and `npm run dev`.
-
-### 2. Hosting (Manual Import)
-1. Use the provided `database_structure.sql` to import the schema via phpMyAdmin.
-2. Ensure your domain points to the `/public` directory or follow standard Hostinger Laravel deployment steps.
-
 ---
 
 ## Deliverables Included
